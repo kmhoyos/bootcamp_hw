@@ -1,0 +1,108 @@
+Sub StockData()
+
+Dim starting_ws As Worksheet
+Set starting_ws = ActiveSheet
+
+    For Each ws In ThisWorkbook.Worksheets
+        ws.Activate
+       
+        Dim Ticker As String
+        Dim TotalVol As Double
+        TotalVol = 0
+        Dim FirstOpen As Double
+        FirstOpen = ws.Range("C2").Value
+        Dim LastClose As Double
+        Dim Summary_Table_Row As Double
+        Summary_Table_Row = 2
+        ws.Range("K1") = "Ticker"
+        ws.Range("L1") = "Total Volume"
+        ws.Range("M1") = "Yearly Change"
+        ws.Range("N1") = "Percent Change"
+        Dim LastRow As Double
+        LastRow = ws.Cells(ws.Rows.Count, "A").End(xlUp).Row
+  
+        ws.Range("A1").Activate
+  
+        For i = 2 To LastRow
+
+            If ws.Cells(i + 1, 1).Value <> ws.Cells(i, 1).Value Then
+            Ticker = ws.Cells(i, 1).Value
+            TotalVol = TotalVol + ws.Cells(i, 7).Value
+            LastClose = ws.Cells(i, 6).Value
+            ws.Range("K" & Summary_Table_Row).Value = Ticker
+            ws.Range("L" & Summary_Table_Row).Value = TotalVol
+            ws.Range("M" & Summary_Table_Row).Value = LastClose - FirstOpen
+                If ws.Range("M" & Summary_Table_Row).Value > 0 Then
+                ws.Range("M" & Summary_Table_Row).Interior.ColorIndex = 10
+                Else
+                ws.Range("M" & Summary_Table_Row).Interior.ColorIndex = 3
+                End If
+                If FirstOpen <> 0 Then
+                ws.Range("N" & Summary_Table_Row).Value = (LastClose - FirstOpen) / FirstOpen
+                Else
+                ws.Range("N" & Summary_Table_Row).Value = 0
+                End If
+                If ws.Range("N" & Summary_Table_Row).Value > 0 Then
+                ws.Range("N" & Summary_Table_Row).Interior.ColorIndex = 10
+                Else
+                ws.Range("N" & Summary_Table_Row).Interior.ColorIndex = 3
+                End If
+            Summary_Table_Row = Summary_Table_Row + 1
+            TotalVol = 0
+            FirstOpen = ws.Cells(i + 1, 3).Value
+
+            Else
+            TotalVol = TotalVol + ws.Cells(i, 7).Value
+
+            End If
+
+        Next i
+
+        ws.Range("P2").Value = "Greatest % Increase"
+        ws.Range("P3").Value = "Greatest % Decrease"
+        ws.Range("P4").Value = "Greatest Total Volume"
+        ws.Range("Q1").Value = "Ticker"
+        ws.Range("R1").Value = "Value"
+
+        Dim MaxChg As Double
+        Dim MinChg As Double
+        Dim MaxV As Double
+        MaxChg = 0
+        MinChg = 0
+        MaxV = 0
+
+        For i = 2 To ws.Cells(ws.Rows.Count, "K").End(xlUp).Row
+
+            For j = 11 To 14
+    
+                If ws.Cells(i, 14).Value > MaxChg Then
+                MaxChg = ws.Cells(i, 14).Value
+                MaxTicker = ws.Cells(i, 11).Value
+                ws.Range("R2").Value = MaxChg
+                ws.Range("Q2").Value = MaxTicker
+                End If
+    
+                If ws.Cells(i, 14).Value < MinChg Then
+                MinChg = ws.Cells(i, 14).Value
+                MinTicker = ws.Cells(i, 11).Value
+                ws.Range("R3").Value = MinChg
+                ws.Range("Q3").Value = MinTicker
+                End If
+    
+                If ws.Cells(i, 12).Value > MaxV Then
+                MaxV = ws.Cells(i, 12).Value
+                MaxVTicker = ws.Cells(i, 11).Value
+                ws.Range("R4").Value = MaxV
+                ws.Range("Q4").Value = MaxVTicker
+                End If
+        
+            Next j
+
+        Next i
+        
+    Next ws
+
+starting_ws.Activate
+
+End Sub
+
